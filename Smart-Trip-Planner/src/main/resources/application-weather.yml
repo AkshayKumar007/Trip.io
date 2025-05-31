@@ -1,0 +1,77 @@
+# Weather service configuration
+openweathermap:
+  api:
+    key: ${OPENWEATHERMAP_API_KEY:}  # Set your OpenWeatherMap API key here or via environment variable
+    url: https://api.openweathermap.org/data/2.5
+    geocoding-url: http://api.openweathermap.org/geo/1.0/direct
+    air-pollution-url: http://api.openweathermap.org/data/2.5/air_pollution
+    uv-index-url: http://api.openweathermap.org/data/2.5/onecall
+    alert-url: http://api.openweathermap.org/data/3.0/onecall
+  
+  # Cache configuration (in seconds)
+  cache:
+    ttl: 1800  # 30 minutes
+    
+  # API rate limiting (requests per minute)
+  rate-limit:
+    enabled: true
+    limit: 60  # Free tier limit is 60 calls/minute
+    
+  # Mock data configuration
+  mock:
+    enabled: ${MOCK_WEATHER_DATA:false}  # Set to true to use mock data instead of real API calls
+    
+# Logging configuration for weather service
+logging:
+  level:
+    com.trip.Smart.Trip.Planner.service.WeatherService: INFO
+    com.trip.Smart.Trip.Planner.service.impl.EnhancedWeatherServiceImpl: DEBUG
+    org.springframework.web.client.RestTemplate: WARN
+    org.springframework.cache: INFO
+    
+# Server configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  
+# Spring profiles
+spring:
+  application:
+    name: smart-trip-planner
+  profiles:
+    active: dev
+  
+  # Actuator endpoints
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics,caches
+    endpoint:
+      health:
+        show-details: always
+      
+  # Cache configuration
+  cache:
+    type: simple
+    cache-names: weatherForecast,currentWeather,weatherAlerts,uvIndexForecast,airQuality,geocoding
+    
+# Swagger/OpenAPI configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    doc-expansion: none
+  
+  # Group configuration for API documentation
+  group-configs:
+    - group: weather
+      paths-to-match: /api/v1/weather/**
+      packages-to-scan: com.trip.Smart.Trip.Planner.controller
+    - group: trips
+      paths-to-match: /api/v1/trips/**
+      packages-to-scan: com.trip.Smart.Trip.Planner.controller
