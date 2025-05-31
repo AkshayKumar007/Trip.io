@@ -1,0 +1,115 @@
+﻿Prompt for Generating Smart Backpacking Backend (Java Spring Boot)
+Project Context: You are tasked with generating the backend for the "Smart Back Packing" application. This application aims to simplify trip planning by providing intelligent packing suggestions, wardrobe creation, cost estimation, and recommendations for shopping, accommodation, and travel. The detailed requirements, user flows, and high-level design are outlined in the "Engineering Requirements Document (ERD): Smart Back Packing" (Version 1.0).
+Core Task: Generate a complete, runnable backend application using Java and Spring Boot that implements the features and API endpoints specified below. The application should be well-structured, include necessary configurations, and be ready for local development and testing using Docker.
+Key Features & API Endpoints to Implement (as per ERD):
+Refer to the ERD (sections 6.3 Data Model, 7.2 Backend Design - API Endpoints, 7.3 Database Design) for details on DTOs, Entities, and database schema.
+1. Flow 1: New Trip Setup & Core Details
+   * API Endpoint: POST /api/v1/trips
+   * Functionality: Allows a user to create a new trip plan. Store details like trip type, destination, dates (or number of days), number of people, and any initial notes.
+   * Request Body: TripSetupDTO (containing fields like tripType, destination, startDate, endDate, numDays, numPeople, notes).
+   * Response: TripDTO (representing the created trip, including its generated ID).
+   * Entities Involved: TripEntity.
+   * Database Interaction: Save new TripEntity to the database.
+2. Flow 2: Weather Analysis & Initial Packing Guidance
+   * API Endpoint: GET /api/v1/weather
+      * Query Parameters: destination (String, e.g., city name), startDate (String, e.g., "YYYY-MM-DD"), endDate (String, e.g., "YYYY-MM-DD").
+   * Functionality:
+      * Fetch current and forecasted weather for the given destination and date range by integrating with an external weather API (e.g., OpenWeatherMap).
+      * Use a placeholder API key for the external weather service and clearly indicate in the code/configuration where the actual key should be inserted.
+      * Process the raw API response and return a simplified forecast.
+   * Response: WeatherForecastDTO (containing fields like destination, date, temperatureMin, temperatureMax, conditionDescription, iconCode, precipitationChance). You can return a list if the forecast spans multiple days.
+   * Service: WeatherService to encapsulate the logic of calling the external API and transforming the data. Implement basic caching for weather API responses to avoid rate limiting (e.g., using Spring's caching annotations or a simple in-memory cache for the hackathon).
+3. Flow 3: Wardrobe Creation & Styling
+   * API Endpoint: PUT /api/v1/trips/{tripId}/wardrobe
+   * Functionality: Allows a user to save or update their packing list (wardrobe) for a specific trip. This includes adding items, setting quantities, and marking items as owned.
+   * Path Variable: tripId (Long).
+   * Request Body: WardrobeDTO (e.g., a list of PackingItemDTO objects. Each PackingItemDTO should include itemName, category, quantity, isOwned, isTrendySuggestion, notes).
+   * Response: WardrobeDTO (reflecting the saved state).
+   * Entities Involved: TripEntity, WardrobeItemEntity.
+   * Database Interaction: Create/Update WardrobeItemEntity records associated with the TripEntity.
+   * Service: WardrobeService for business logic. For "trendy suggestions," this service can have a simple mock implementation that suggests a few predefined items based on tripType.
+4. Flow 4: Shopping for Wardrobe Items
+   * API Endpoint: GET /api/v1/trips/{tripId}/wardrobe/shop-items
+   * Functionality: Retrieve a list of items from the user's wardrobe for a specific trip that are marked as "not owned" (i.e., items the user might need to buy).
+   * Path Variable: tripId (Long).
+   * Response: List<ShopItemDTO> (Each ShopItemDTO could include itemName, category, and a simulatedAffiliateLink which can be a placeholder URL like https://example.com/shop?item={itemName}).
+   * Database Interaction: Query WardrobeItemEntity records.
+5. Flow 5: Trip Logistics - Accommodation & Travel Recommendations
+   * API Endpoint 1: GET /api/v1/recommendations/stays
+      * Query Parameters: destination (String), startDate (String), endDate (String), numPeople (Integer).
+   * Functionality: Provide mock/hardcoded recommendations for accommodation (hotels, hostels, etc.).
+   * Response: List<AccommodationDTO> (Each AccommodationDTO could include name, type, priceEstimate, rating, simulatedBookingLink).
+   * API Endpoint 2: GET /api/v1/recommendations/travel
+      * Query Parameters: origin (String), destination (String), travelDate (String), numPeople (Integer).
+   * Functionality: Provide mock/hardcoded recommendations for travel (flights, trains).
+   * Response: List<TravelOptionDTO> (Each TravelOptionDTO could include modeOfTransport, providerName, durationEstimate, priceEstimate, simulatedBookingLink).
+   * Service: RecommendationService to return static/mock data for these recommendations for the hackathon.
+6. Flow 6: Cost Estimation & Optimization
+   * API Endpoint 1: PUT /api/v1/trips/{tripId}/budget
+   * Functionality: Allow users to save or update their estimated/actual costs for various categories related to a trip.
+   * Path Variable: tripId (Long).
+   * Request Body: BudgetDTO (containing a list of CostItemDTO objects. Each CostItemDTO includes categoryName, itemDescription, estimatedCost, actualCost, notes).
+   * Response: BudgetDTO (reflecting the saved budget, possibly with a calculated total).
+   * Entities Involved: TripEntity, CostItemEntity.
+   * Database Interaction: Create/Update CostItemEntity records.
+   * API Endpoint 2: GET /api/v1/trips/{tripId}/budget/optimize
+   * Functionality: Provide simple, mock budget optimization suggestions for the trip.
+   * Path Variable: tripId (Long).
+   * Response: List<OptimizationSuggestionDTO> (Each OptimizationSuggestionDTO includes a suggestionText).
+   * Service: BudgetService for cost calculations and mock optimization tips.
+Technical Specifications:
+* Language: Java (JDK 17 or newer).
+* Framework: Spring Boot (latest stable version, e.g., 3.x+).
+* Spring Boot Starters (include in pom.xml):
+   * spring-boot-starter-web (for REST APIs)
+   * spring-boot-starter-data-jpa (for database interaction)
+   * spring-boot-starter-validation (for DTO validation)
+   * spring-boot-starter-actuator (optional, for health checks)
+   * h2 (runtime scope, for in-memory database)
+   * spring-boot-starter-test (for testing, will include H2 for test scope)
+   * lombok (optional, for reducing boilerplate code like getters/setters)
+* Database: H2 in-memory database. Configure application.properties for H2 console access (spring.h2.console.enabled=true, spring.h2.console.path=/h2-console).
+* Build Tool: Maven. Generate a complete pom.xml file.
+* API Style: RESTful, using JSON for request and response payloads.
+* Logging: Use SLF4J with Logback (default in Spring Boot).
+Code Structure:
+Follow a standard Spring Boot multi-module or package-by-feature/layer structure:
+* com.smartbackpacking.controller
+* com.smartbackpacking.service (with impl sub-package for implementations)
+* com.smartbackpacking.repository (Spring Data JPA interfaces)
+* com.smartbackpacking.model.entity (JPA entities)
+* com.smartbackpacking.model.dto (Data Transfer Objects)
+* com.smartbackpacking.config (e.g., WebConfig for CORS, SecurityConfig if basic security is added)
+* com.smartbackpacking.exception (Custom exception classes and global exception handler)
+* SmartBackpackingApplication.java (Main application class)
+Database Schema & Entities:
+* Define JPA entities (TripEntity, WardrobeItemEntity, CostItemEntity) based on the ERD (Section 7.3).
+* Use appropriate JPA annotations (@Entity, @Table, @Id, @GeneratedValue, @Column, @ManyToOne, @OneToMany, etc.).
+* Define relationships (e.g., a Trip can have many WardrobeItems and many CostItems).
+* Include fields for created_at and updated_at timestamps where appropriate, managed by JPA auditing or manually.
+Error Handling:
+* Implement a global exception handler using @ControllerAdvice and @ExceptionHandler.
+* Handle common exceptions like ResourceNotFoundException (custom), MethodArgumentNotValidException (for validation failures), etc.
+* Return meaningful JSON error responses (e.g., { "timestamp": "...", "status": 404, "error": "Not Found", "message": "Trip with ID 123 not found", "path": "/api/v1/trips/123" }).
+Validation:
+* Apply Bean Validation (JSR 380) annotations (@NotNull, @NotBlank, @Size, @Min, @Email, etc.) to DTO fields.
+* Ensure controllers validate request bodies using @Valid.
+Docker Setup:
+1. Dockerfile:
+   * Use an appropriate base image (e.g., eclipse-temurin:17-jdk-jammy or openjdk:17-jdk-slim).
+   * Copy the built JAR file (from target/*.jar) into the image.
+   * Set the entry point to run the application (java -jar app.jar).
+   * Expose the application port (e.g., 8080).
+2. docker-compose.yml (Version 3.8 or higher):
+   * Define a service for the smart-backpacking-app.
+   * Build the image using the Dockerfile in the current directory.
+   * Map the container's port (e.g., 8080) to a host port (e.g., 8080).
+   * Set up environment variables if needed (e.g., for profiles, external API keys - though for H2, DB config is usually in application.properties).
+Instructions for Code Generation:
+* Generate all Java classes, including Controllers, Services (with interfaces and implementations), Repositories, Entities, DTOs, the main Application class, any necessary Configuration classes, and Exception handling classes.
+* Provide the complete pom.xml file.
+* Provide the Dockerfile and docker-compose.yml files.
+* Ensure the code is well-commented, especially for complex logic or placeholder sections (like external API key usage).
+* For features requiring external data or complex logic (e.g., "trendy item suggestions", "optimization tips", "external API calls for recommendations"), implement simple mock/placeholder logic that returns static or predictable data. The focus for the hackathon is on the structure and flow.
+* The application should be runnable locally using mvn spring-boot:run and also via the Docker setup.
+* Ensure basic CORS configuration is present to allow requests from a frontend application running on a different port (e.g., localhost:3000).
