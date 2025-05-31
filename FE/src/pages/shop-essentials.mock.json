@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "1",
+      "name": "Travel T-Shirt",
+      "description": "Lightweight, quick-drying fabric, ideal for warm climates.",
+      "image": "https://cdn-icons-png.flaticon.com/512/892/892458.png"
+    },
+    {
+      "id": "2",
+      "name": "Hiking Pants",
+      "description": "Durable, water-resistant, with multiple pockets for storage.",
+      "image": "https://cdn-icons-png.flaticon.com/512/892/892457.png"
+    },
+    {
+      "id": "3",
+      "name": "Hiking Socks",
+      "description": "Breathable, moisture-wicking, suitable for long walks.",
+      "image": "https://cdn-icons-png.flaticon.com/512/892/892456.png"
+    },
+    {
+      "id": "4",
+      "name": "Water Bottle",
+      "description": "Compact, lightweight, with a built-in water filter.",
+      "image": "https://cdn-icons-png.flaticon.com/512/892/892455.png"
+    },
+    {
+      "id": "5",
+      "name": "Sun Hat",
+      "description": "Protects from sun, wind, and rain, with adjustable features.",
+      "image": "https://cdn-icons-png.flaticon.com/512/892/892454.png"
+    },
+    {
+      "id": "6",
+      "name": "Hiking Boots",
+      "description": "Comfortable, supportive, with good traction for varied terrains.",
+      "image": "https://cdn-icons-png.flaticon.com/512/892/892453.png"
+    }
+  ]
+}
